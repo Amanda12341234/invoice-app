@@ -1,50 +1,181 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+同步影響報告
+============
+版本變更：1.0.1 → 1.1.0
+修改原則：
+  - 原則二「技術堆疊一致性」→「零成本技術堆疊一致性」
+    （TODO(TECH_STACK) 已依 prd.md 補齊完整技術堆疊）
+  - 原則四「資料完整性優先」→「資料完整性與隱私優先」
+    （新增：圖片處理後立即刪除、API Key 環境變數規定）
+新增原則：
+  - 原則五「本地優先運算」（源自 prd.md 開發準則第3條）
+  - 原則六「API 節流保護」（源自 prd.md 開發準則第1條）
+  - 原則七為原原則五「簡單性與 YAGNI」，序號後移
+新增章節：無
+移除章節：無
+範本更新狀況：
+  - .specify/templates/plan-template.md    ✅ 憲章審查關卡已為通用設計，無需修改
+  - .specify/templates/spec-template.md    ✅ 無需修改
+  - .specify/templates/tasks-template.md   ✅ 無需修改
+  - .specify/templates/checklist-template.md ✅ 無需修改
+延遲待辦事項：
+  - 無（TODO(TECH_STACK) 已解決）
+-->
 
-## Core Principles
+# 免費 AI 發票辨識 RAG 系統憲章
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+## 核心原則
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### 一、功能優先交付
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+所有工作單元**必須**對應至面向使用者的功能，或具有明確技術必要性的基礎設施需求。
+無法追溯至使用者情境（發票擷取、辨識、查詢對話）或已陳述技術約束的工作，**不得**啟動。
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+**理由**：本系統以四個明確階段（Camera 引導 → Gemini 解析 → ChromaDB 儲存 →
+RAG 對話）為交付單位。將每項任務錨定於具體用途，可防止範疇蔓延，
+確保每個 Phase 都能獨立展示價值。
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### 二、零成本技術堆疊一致性（不可妥協）
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+所有程式碼**必須**使用下表所定義的技術堆疊。引入任何新的執行環境、語言或
+主要框架，**必須**透過憲章修訂程序進行，並提出零成本可行性論證。
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+| 層級 | 指定工具 | 版本／備注 |
+|------|----------|-----------|
+| 前端 | Flutter | 最新穩定版，跨平台 |
+| 前端影像處理 | Google ML Kit (On-Device) | 完全免費，離線可用 |
+| 後端 API | FastAPI (Python) | 異步，適合 AI 任務調度 |
+| OCR / LLM | Google Gemini 2.0 Flash | Google AI Studio 免費額度 |
+| 備援 OCR | PaddleOCR | 離線本地，繁中最佳 |
+| 向量資料庫 | ChromaDB (Local Mode) | 儲存於伺服器本機，無訂閱費 |
+| AI 框架 | LangChain | 開源，支援彈性切換免費模型 |
+| Embedding | sentence-transformers (HuggingFace) | 本地向量轉換，免費 |
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+**理由**：系統設計前提為零成本運行。偏離此堆疊可能引入雲端計費風險，
+直接違背專案核心願景。
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### 三、測試覆蓋門檻（不可妥協）
 
-## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+所有新增的商業邏輯（發票解析、資料欄位驗證、RAG 檢索鏈）**必須**在任務標記
+完成前，至少有一個自動化測試覆蓋。測試**必須**先寫好並確認失敗，
+實作完成後方可通過（紅燈 → 綠燈）。
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+**理由**：Gemini 回傳的 JSON 欄位（`store_name`、`date`、`items`、`total`、
+`category`）為後續 RAG 查詢的基礎。解析錯誤會導致財務數據失真，
+一次回歸失敗的代價遠高於跳過測試所節省的時間。
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+### 四、資料完整性與隱私優先
+
+每個建立、修改或刪除財務記錄的功能**必須**：
+
+- 在 API 邊界處驗證所有輸入欄位，不得僅依賴 Flutter 前端驗證。
+- 多筆記錄同時變更時，使用原子操作或資料庫交易。
+- 保留稽核軌跡——已解析的結構化記錄**不得**硬刪除，
+  除非功能規格書中有明確業務理由記載。
+- 使用者發票**原始圖檔**在後端處理完畢後**必須立即刪除**，
+  系統僅保留結構化 JSON 數據，不得持久化圖片。
+- API Key **必須**儲存於 `.env` 環境變數，**嚴禁**提交至 Git 版本控制。
+
+**理由**：發票圖片含有消費隱私。圖片留存超過必要時間即構成隱私風險；
+API Key 洩漏會導致免費額度被盜用，直接破壞零成本前提。
+
+### 五、本地優先運算
+
+向量計算、Embedding 轉換與備援 OCR（PaddleOCR）**必須**優先在後端本地主機
+執行，不得在可本地完成的情況下呼叫雲端收費服務。
+
+雲端 API（Gemini）僅用於本地無法達到同等品質的任務（多模態圖片理解）。
+新功能若可本地完成，**不得**以方便為由改用雲端付費 API。
+
+**理由**：系統的零成本承諾依賴於將雲端呼叫最小化。
+本地優先同時降低延遲並提高離線可用性。
+
+### 六、API 節流保護（不可妥協）
+
+後端**必須**實作針對 Gemini API 的速率限制器（Rate Limiter），
+確保每分鐘請求數（RPM）不超過 Google AI Studio 免費層配額上限。
+
+- 速率限制邏輯**必須**在 FastAPI 中集中實作，不得分散於各服務。
+- 超過配額時，系統**必須**自動降級至 PaddleOCR + 本地 LLM（Ollama/Llama 3）
+  進行備援處理，而非直接回傳錯誤。
+- 限流參數（RPM 上限）**必須**可透過 `.env` 設定，不得硬編碼。
+
+**理由**：免費額度一旦超標，API 呼叫將被封鎖或開始計費，
+直接破壞零成本運行的核心承諾。
+
+### 七、簡單性與 YAGNI 原則
+
+解決方案**必須**使用滿足當前功能規格所需的最低複雜度。
+推測性新增的抽象層、泛用化設計及未列於 prd.md 路線圖的基礎設施，**一律禁止**。
+
+**理由**：這是維護資源有限的個人副業專案。
+過度設計會產生超越原始功能生命週期的技術債。
+
+## 技術標準
+
+### 指定資料欄位（發票結構化輸出）
+
+所有發票解析結果**必須**包含以下欄位，欄位名稱不得自行更改：
+
+```json
+{
+  "store_name": "店名（字串）",
+  "date": "消費日期（YYYY-MM-DD）",
+  "items": [
+    { "name": "品項名稱", "unit_price": 0, "quantity": 1 }
+  ],
+  "total": 0,
+  "category": "食 | 衣 | 住 | 行"
+}
+```
+
+### 錯誤降級策略
+
+| 主要路徑失敗情境 | 降級行為 |
+|-----------------|---------|
+| Gemini API 回傳失敗 | 自動切換 PaddleOCR 提取原始文字，再由 Ollama (Llama 3) 嘗試補全 |
+| 網路斷線（Flutter 端） | 離線快照暫存，待網路恢復後自動上傳排隊 |
+| RPM 超過限制 | 排入本地佇列，依配額恢復後重新送出 |
+
+### 路線圖階段對照
+
+| 階段 | 範圍 | 關鍵憲章關卡 |
+|------|------|-------------|
+| Phase 1 | Flutter Camera + ML Kit 取景引導 | 原則一、二、七 |
+| Phase 2 | FastAPI + Gemini API 圖片解析 | 原則二、三、四、六 |
+| Phase 3 | ChromaDB 向量資料庫整合 | 原則二、四、五 |
+| Phase 4 | LangChain RAG 對話功能 | 原則一、二、三、五 |
+
+## 開發工作流程
+
+- **分支策略**：每個功能一個分支，命名格式為 `###-功能名稱`，
+  需與規格目錄名稱對應。
+- **先寫規格**：任何實作任務開始前，`spec.md` **必須**存在並獲得核准。
+- **任務追蹤**：實作開始前，`tasks.md` **必須**已由 `/speckit.tasks` 指令產生完成。
+- **PR 關卡**：Pull Request **必須**引用功能規格書，
+  並包含自我審查清單以確認符合憲章規定。
+- **禁止強制推送**：`main` 分支**不得**進行強制推送（force-push），
+  合併後的歷史記錄不可變更。
+- **環境變數**：`.env` 檔案**必須**列於 `.gitignore`，
+  範本 `.env.example` **必須**隨程式碼一同提交。
+
+## 治理規範
+
+本憲章凌駕所有其他書面或口頭開發慣例。
+本憲章未涵蓋的事項，預設遵循簡單性原則（原則七）。
+
+**修訂程序**：
+1. 提案者透過 PR 對 `.specify/memory/constitution.md` 提出變更。
+2. 版本號**必須**依據語意化版本規則進行升級（見版本行說明）。
+3. 所有相依範本與指引文件**必須**在同一 PR 中一併更新。
+4. PR 說明**必須**包含同步影響報告。
+
+**合規審查**：每份功能計畫**必須**包含「憲章審查」章節，
+明確說明是否符合原則一至七。違規情況需在複雜度追蹤表中記錄並提出理由。
+
+**版本政策**：
+- MAJOR：移除或重新定義核心原則（不相容變更）。
+- MINOR：新增原則或章節，或實質性擴充指引（含技術堆疊重大變更）。
+- PATCH：措辭澄清、錯字修正、非語義性調整。
+
+**版本**：1.1.0 | **批准日期**：2026-02-25 | **最後修訂**：2026-02-25
