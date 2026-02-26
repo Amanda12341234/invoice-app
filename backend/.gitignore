@@ -1,0 +1,35 @@
+# 環境變數（禁止提交，憲章原則四）
+.env
+
+# Python 快取
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# 虛擬環境
+.venv/
+venv/
+env/
+
+# PaddleOCR 模型快取（首次執行自動下載，~150-200 MB）
+.paddleocr/
+
+# 測試產出
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 編輯器
+.vscode/
+.idea/
+*.swp
+
+# 作業系統
+.DS_Store
+Thumbs.db
+
+# 暫存圖片（不應出現，保險起見）
+*.jpg.tmp
+*.png.tmp
